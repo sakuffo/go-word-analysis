@@ -78,6 +78,12 @@ func read_json_file(filepath string) []Review {
 	return reviews
 }
 
+func (dataset *Dataset) tokenize() {
+	for i := range dataset.reviews {
+		dataset.reviews[i].Tokens = tokenize(dataset.reviews[i].ReviewText)
+	}
+}
+
 func tokenize(text string) []string {
 
 	re := regexp.MustCompile(`[[:punct:]]`)
@@ -105,15 +111,27 @@ func count_words(words []string) map[string]int {
 	return word_count
 }
 
-func main() {
-	// read the json file
-	dataset := Dataset{filepath: "./Digital_Music_5.json"}
-	dataset.read_json_file()
-
+func (dataset *Dataset) count_words() {
 	for i := range dataset.reviews {
-		fmt.Print(".")
-		tokens := tokenize(dataset.reviews[i].ReviewText)
-		count_words(tokens)
+		dataset.reviews[i].WordCount = count_words(dataset.reviews[i].Tokens)
 	}
-	fmt.Println("Complete")
+}
+
+func main() {
+	dataset := Dataset{filepath: "./data/Digital_Music_5.json"}
+	dataset.read_json_file()
+	dataset.tokenize()
+	dataset.count_words()
+	for i := range dataset.reviews {
+		fmt.Println(dataset.reviews[i].ReviewText)
+		fmt.Println("---")
+		fmt.Println(dataset.reviews[i].Tokens)
+		fmt.Println("---")
+		fmt.Println(dataset.reviews[i].WordCount)
+		fmt.Println("=================================")
+
+		if i >= 2 {
+			break
+		}
+	}
 }
